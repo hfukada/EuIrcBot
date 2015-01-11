@@ -4,7 +4,9 @@ var u = require("./utils");
 var repl = require("./repl");
 
 function shouldEval (text) {
-    return u.contains("(", text) &&
+    var length = text.length;
+    return text[0] === "(" && 
+        text[length - 1] === ")" && 
         u.balancedParens(text);
 }
 
