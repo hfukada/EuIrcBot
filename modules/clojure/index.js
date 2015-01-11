@@ -3,12 +3,13 @@
 var u = require("./utils");
 var repl = require("./repl");
 
+function shouldEval (text) {
+    return u.contains("(", text) &&
+        u.balancedParens(text);
+}
+
 module.exports.msg = function (text, from, reply, raw) {
-    if (u.contains("(", text)) {
-        if (u.balancedParens(text)) {
-            repl.evalClj(text).then(reply);
-        } else {
-            reply("Balance yo parens, homie!");
-        }
+    if (shouldEval(text)) {
+        repl.evalClj(text).then(reply);
     }
 }

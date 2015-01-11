@@ -21,10 +21,24 @@ exports.contains = function contains (substr, superstr) {
     return superstr.indexOf(substr) > -1;
 }
 
-exports.lookup = function lookup (key) {
+function lookup (key) {
     return function (object) {
         return object[key];
     }
+}
+
+exports.lookup = lookup;
+
+function orComp (fn0, fn1, fn2) {
+    return function (x) {
+        return fn0(x) || fn1(x) || fn2(x);
+    }
+}
+
+exports.orComp = orComp;
+
+exports.lookupFirst = function (key0, key1, key2) {
+    return orComp(lookup(key0), lookup(key1), lookup(key2));
 }
 
 function addCookie (req, key, value) {
@@ -46,4 +60,17 @@ exports.buildRequest = function buildRequest (expression, session) {
         request = addCookie(request, "ring-session", session);
     }
     return request;
+}
+
+exports.fakePromise = function fakePromise (value) {
+    return {
+        "then": function(fn) {
+            var result = fn(value);
+            if (!!result && !!result.then) {
+                return result;
+            } else {
+                return fakePromise(result);
+            }
+        }
+    }
 }

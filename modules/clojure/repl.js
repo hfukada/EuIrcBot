@@ -18,9 +18,15 @@ function saveSession (response) {
 }
 
 exports.evalClj = function evalClj (expression) {
-    return request(u.buildRequest(expression, globalSession)).
-        then(saveSession).
-        then(u.lookup("body")).
-        then(JSON.parse).
-        then(u.lookup("result"));
+    if (expression === "(reset-session)") {
+        globalSession = null;
+        return u.fakePromise("Reset repl session");
+    } else {
+        var options = u.buildRequest(expression, globalSession);
+        return request(options).
+            then(saveSession).
+            then(u.lookup("body")).
+            then(JSON.parse).
+            then(u.lookupFirst("result", "message"));
+    }
 }
